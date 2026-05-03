@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Электронная библиотека</title>
+    <style>
+        /* 
+           RESET & BASE
+           */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg:        #111111;
+            --bg-card:   #1a1a1a;
+            --bg-input:  #222222;
+            --bg-hover:  #2a2a2a;
+            --border:    #333333;
+            --text:      #e0e0e0;
+            --text-dim:  #888888;
+            --accent:    #ffffff;
+            --success:   #a0a0a0;
+            --danger:    #666666;
+            --radius:    8px;
+            --font:      'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* 
+           LAYOUT
+           */
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 240px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 24px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .logo h1 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            font-size: 11px;
+            color: var(--text-dim);
+            display: block;
+            margin-top: 4px;
+        }
+
+        .nav {
+            list-style: none;
+            flex: 1;
+        }
+
+        .nav li {
+            padding: 10px 24px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border-left: 3px solid transparent;
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        .nav li:hover {
+            background: var(--bg-hover);
+            color: var(--text);
+        }
+
+        .nav li.active {
+            background: var(--bg-hover);
+            color: var(--accent);
+            border-left-color: var(--accent);
+        }
+
+        .nav li .key {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 10px;
+            color: var(--text-dim);
+        }
+
+        .sidebar-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* --- Main content --- */
+        .main {
+            margin-left: 240px;
+            flex: 1;
+            padding: 32px 40px;
+            max-width: 1000px;
+        }
+
+        /* 
+           PAGE HEADER
+           */
+        .page-header {
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .page-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .page-header p {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        /* 
+           BUTTONS
+          */
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 12px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--text-dim);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #cccccc;
+        }
+
+        .btn-danger {
+            border-color: #555;
+        }
+
+        .btn-danger:hover {
+            background: #333;
+            border-color: #888;
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 11px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* 
+           TABLE*/
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead th {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-dim);
+            font-weight: 500;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr {
+            transition: background 0.1s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-available {
+            background: #222;
+            color: #aaa;
+            border: 1px solid #444;
+        }
+
+        .badge-issued {
+            background: #1a1a1a;
+            color: #666;
+            border: 1px solid #333;
+        }
+
+        .badge-active {
+            background: #222;
+            color: #ccc;
+            border: 1px solid #555;
+        }
+
+        .badge-closed {
+            background: #1a1a1a;
+            color: #555;
+            border: 1px solid #2a2a2a;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+        }
+
+        .empty-state .icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            width: 420px;
+            max-width: 90vw;
+            transform: translateY(10px);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0);
+        }
+
+        .modal h3 {
+            font-size: 16px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--text-dim);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* STATS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-card .label {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .genre-list {
+            list-style: none;
+        }
+
+        .genre-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .genre-list li:last-child {
+            border-bottom: none;
+        }
+
+        .genre-list .count {
+            color: var(--text-dim);
+        }
+
+        /* SEARCH*/
+        .search-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 13px;
+            outline: none;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--text-dim);
+        }
+
+        .search-bar select {
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 13px;
+            outline: none;
+        }
+
+        /* TOAST*/
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 200;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 20px;
+            font-size: 12px;
+            margin-top: 8px;
+            animation: slideIn 0.2s ease, fadeOut 0.3s ease 2.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(5px); }
+        }
+
+        /* SECTION HIDE/SHOW*/
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- ========== SIDEBAR ========== -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h1>LIBRARY</h1>
+                <span>Электронная библиотека</span>
+            </div>
+            <ul class="nav">
+                <li class="active" onclick="showPage('books')">
+                    <span class="key">1</span> Книги
+                </li>
+                <li onclick="showPage('readers')">
+                    <span class="key">2</span> Читатели
+                </li>
+                <li onclick="showPage('issues')">
+                    <span class="key">3</span> Выдача
+                </li>
+                <li onclick="showPage('search')">
+                    <span class="key">4</span> Поиск
+                </li>
+                <li onclick="showPage('stats')">
+                    <span class="key">5</span> Статистика
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                Данные хранятся в localStorage браузера
+            </div>
+        </nav>
+
+        <!-- ========== MAIN ========== -->
+        <div class="main">
+
+            <!-- PAGE: BOOKS -->
+            <div id="page-books" class="page active">
+                <div class="page-header">
+                    <h2>Книги</h2>
+                    <p>Управление каталогом библиотеки</p>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="openAddBook()">+ Добавить</button>
+                    <button class="btn" onclick="sortBooks('author')">Сорт. по автору</button>
+                    <button class="btn" onclick="sortBooks('year')">Сорт. по году</button>
+                </div>
+                <div id="books-table"></div>
+            </div>
+
+            <!-- PAGE: READERS -->
+            <div id="page-readers" class="page">
+                <div class="page-header">
+                    <h2>Читатели</h2>
+                    <p>Зарегистрированные пользователи библиотеки</p>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="openAddReader()">+ Добавить</button>
+                </div>
+                <div id="readers-table"></div>
+            </div>
+
+            <!-- PAGE: ISSUES -->
+            <div id="page-issues" class="page">
+                <div class="page-header">
+                    <h2>Выдача и возврат</h2>
+                    <p>Журнал операций выдачи книг</p>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="openIssueBook()">Выдать книгу</button>
+                    <button class="btn" onclick="openReturnBook()">Вернуть книгу</button>
+                </div>
+                <div id="issues-table"></div>
+            </div>
+
+            <!-- PAGE: SEARCH -->
+            <div id="page-search" class="page">
+                <div class="page-header">
+                    <h2>Поиск</h2>
+                    <p>Поиск книг по названию или автору</p>
+                </div>
+                <div class="search-bar">
+                    <select id="search-field">
+                        <option value="title">По названию</option>
+                        <option value="author">По автору</option>
+                    </select>
+                    <input type="text" id="search-input" placeholder="Введите запрос..." oninput="doSearch()">
+                </div>
+                <div id="search-results"></div>
+            </div>
+
+            <!-- PAGE: STATS -->
+            <div id="page-stats" class="page">
+                <div class="page-header">
+                    <h2>Статистика</h2>
+                    <p>Общая информация о библиотеке</p>
+                </div>
+                <div id="stats-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL ========== -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal" id="modal-content"></div>
+    </div>
+
+    <!-- ========== TOAST ========== -->
+    <div class="toast-container" id="toasts"></div>
+
+    <script>
+  
+    //  DATA LAYER — localStorage
+    
+
+    const GENRES = [
+        'Художественная', 'Наука', 'История',
+        'Философия', 'Программирование', 'Поэзия', 'Другое'
+    ];
+
+    function load(key, fallback) {
+        try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+        catch { return fallback; }
+    }
+
+    function save(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function getBooks()   { return load('lib_books', []); }
+    function getReaders() { return load('lib_readers', []); }
+    function getIssues()  { return load('lib_issues', []); }
+    function getNextId(key) {
+        let id = load(key, 1);
+        save(key, id + 1);
+        return id;
+    }
+    //  NAVIGATION
+    function showPage(name) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav li').forEach(l => l.classList.remove('active'));
+        document.getElementById('page-' + name).classList.add('active');
+        // find nav item
+        const navItems = document.querySelectorAll('.nav li');
+        const pages = ['books', 'readers', 'issues', 'search', 'stats'];
+        const idx = pages.indexOf(name);
+        if (idx >= 0) navItems[idx].classList.add('active');
+        // refresh content
+        render[name]();
+    }
+
+    // Keyboard shortcuts: 1-5
+    document.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+        const pages = ['books', 'readers', 'issues', 'search', 'stats'];
+        const n = parseInt(e.key);
+        if (n >= 1 && n <= 5) showPage(pages[n - 1]);
+    });
+
+    //  MODAL
+
+    function openModal(html) {
+        document.getElementById('modal-content').innerHTML = html;
+        document.getElementById('modal').classList.add('open');
+    }
+
+    function closeModal() {
+        document.getElementById('modal').classList.remove('open');
+    }
+
+    document.getElementById('modal').addEventListener('click', e => {
+        if (e.target.id === 'modal') closeModal();
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    //  TOAST
+
+    function toast(msg) {
+        const el = document.createElement('div');
+        el.className = 'toast';
+        el.textContent = msg;
+        document.getElementById('toasts').appendChild(el);
+        setTimeout(() => el.remove(), 3000);
+    }
+
+    //  BOOKS
+
+    function openAddBook() {
+        openModal(`
+            <h3>Добавить книгу</h3>
+            <div class="form-group">
+                <label>Название</label>
+                <input type="text" id="f-title" autofocus>
+            </div>
+            <div class="form-group">
+                <label>Автор</label>
+                <input type="text" id="f-author">
+            </div>
+            <div class="form-group">
+                <label>Год издания</label>
+                <input type="number" id="f-year" min="1000" max="2026">
+            </div>
+            <div class="form-group">
+                <label>Жанр</label>
+                <select id="f-genre">
+                    ${GENRES.map(g => `<option value="${g}">${g}</option>`).join('')}
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="addBook()">Добавить</button>
+            </div>
+        `);
+        setTimeout(() => document.getElementById('f-title').focus(), 100);
+    }
+
+    function addBook() {
+        const title  = document.getElementById('f-title').value.trim();
+        const author = document.getElementById('f-author').value.trim();
+        const year   = parseInt(document.getElementById('f-year').value);
+        const genre  = document.getElementById('f-genre').value;
+
+        if (!title || !author || !year) {
+            toast('Заполните все поля');
+            return;
+        }
+
+        const books = getBooks();
+        books.push({
+            id: getNextId('lib_nextBookId'),
+            title, author, year, genre,
+            isAvailable: true
+        });
+        save('lib_books', books);
+        closeModal();
+        render.books();
+        toast('Книга добавлена');
+    }
+
+    function deleteBook(id) {
+        let books = getBooks();
+        const book = books.find(b => b.id === id);
+        if (book && !book.isAvailable) {
+            toast('Нельзя удалить выданную книгу');
+            return;
+        }
+        books = books.filter(b => b.id !== id);
+        save('lib_books', books);
+        render.books();
+        toast('Книга удалена');
+    }
+
+    function sortBooks(field) {
+        let books = getBooks();
+        if (field === 'author') {
+            books.sort((a, b) => a.author.localeCompare(b.author));
+        } else {
+            books.sort((a, b) => a.year - b.year);
+        }
+        save('lib_books', books);
+        render.books();
+        toast('Отсортировано по ' + (field === 'author' ? 'автору' : 'году'));
+    }
+
+    function renderBooksTable(books, container) {
+        if (books.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">[ ]</div>
+                    <div>Книги не найдены</div>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Автор</th>
+                        <th>Год</th>
+                        <th>Жанр</th>
+                        <th>Статус</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${books.map(b => `
+                        <tr>
+                            <td>${b.id}</td>
+                            <td>${esc(b.title)}</td>
+                            <td>${esc(b.author)}</td>
+                            <td>${b.year}</td>
+                            <td>${esc(b.genre)}</td>
+                            <td><span class="badge ${b.isAvailable ? 'badge-available' : 'badge-issued'}">${b.isAvailable ? 'В наличии' : 'Выдана'}</span></td>
+                            <td><button class="btn btn-sm btn-danger" onclick="deleteBook(${b.id})">Удалить</button></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>`;
+    }
+    //  READERS
+
+
+    function openAddReader() {
+        openModal(`
+            <h3>Добавить читателя</h3>
+            <div class="form-group">
+                <label>ФИО</label>
+                <input type="text" id="f-name" autofocus>
+            </div>
+            <div class="form-group">
+                <label>Телефон</label>
+                <input type="text" id="f-phone">
+            </div>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="addReader()">Добавить</button>
+            </div>
+        `);
+        setTimeout(() => document.getElementById('f-name').focus(), 100);
+    }
+
+    function addReader() {
+        const name  = document.getElementById('f-name').value.trim();
+        const phone = document.getElementById('f-phone').value.trim();
+        if (!name || !phone) { toast('Заполните все поля'); return; }
+
+        const readers = getReaders();
+        readers.push({ id: getNextId('lib_nextReaderId'), name, phone });
+        save('lib_readers', readers);
+        closeModal();
+        render.readers();
+        toast('Читатель добавлен');
+    }
+
+    function deleteReader(id) {
+        const issues = getIssues();
+        if (issues.some(i => i.readerId === id && !i.returnDate)) {
+            toast('У читателя есть активные выдачи');
+            return;
+        }
+        save('lib_readers', getReaders().filter(r => r.id !== id));
+        render.readers();
+        toast('Читатель удалён');
+    }
+
+    //  ISSUES
+
+    function openIssueBook() {
+        const books = getBooks().filter(b => b.isAvailable);
+        const readers = getReaders();
+
+        if (books.length === 0 || readers.length === 0) {
+            toast('Нет доступных книг или читателей');
+            return;
+        }
+
+        openModal(`
+            <h3>Выдать книгу</h3>
+            <div class="form-group">
+                <label>Книга</label>
+                <select id="f-bookId">
+                    ${books.map(b => `<option value="${b.id}">${esc(b.title)} — ${esc(b.author)}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Читатель</label>
+                <select id="f-readerId">
+                    ${readers.map(r => `<option value="${r.id}">${esc(r.name)}</option>`).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Дата выдачи</label>
+                <input type="date" id="f-date" value="${new Date().toISOString().slice(0, 10)}">
+            </div>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="issueBook()">Выдать</button>
+            </div>
+        `);
+    }
+
+    function issueBook() {
+        const bookId   = parseInt(document.getElementById('f-bookId').value);
+        const readerId = parseInt(document.getElementById('f-readerId').value);
+        const date     = document.getElementById('f-date').value;
+
+        let books = getBooks();
+        const book = books.find(b => b.id === bookId);
+        if (!book || !book.isAvailable) { toast('Книга недоступна'); return; }
+
+        book.isAvailable = false;
+        save('lib_books', books);
+
+        const issues = getIssues();
+        issues.push({ bookId, readerId, issueDate: date, returnDate: '' });
+        save('lib_issues', issues);
+
+        closeModal();
+        render.issues();
+        toast('Книга выдана');
+    }
+
+    function openReturnBook() {
+        const issues = getIssues().filter(i => !i.returnDate);
+        const books = getBooks();
+        const readers = getReaders();
+
+        if (issues.length === 0) { toast('Нет активных выдач'); return; }
+
+        openModal(`
+            <h3>Вернуть книгу</h3>
+            <div class="form-group">
+                <label>Выберите запись</label>
+                <select id="f-issueIdx">
+                    ${issues.map((iss, idx) => {
+                        const b = books.find(b => b.id === iss.bookId);
+                        const r = readers.find(r => r.id === iss.readerId);
+                        return `<option value="${idx}">${b ? esc(b.title) : 'ID:' + iss.bookId} → ${r ? esc(r.name) : 'ID:' + iss.readerId}</option>`;
+                    }).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Дата возврата</label>
+                <input type="date" id="f-retdate" value="${new Date().toISOString().slice(0, 10)}">
+            </div>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="returnBook()">Вернуть</button>
+            </div>
+        `);
+    }
+
+    function returnBook() {
+        const activeIssues = getIssues().filter(i => !i.returnDate);
+        const idx = parseInt(document.getElementById('f-issueIdx').value);
+        const date = document.getElementById('f-retdate').value;
+
+        const issue = activeIssues[idx];
+        if (!issue) return;
+
+        let allIssues = getIssues();
+        // find this exact issue in all issues
+        const target = allIssues.find(i =>
+            i.bookId === issue.bookId &&
+            i.readerId === issue.readerId &&
+            i.issueDate === issue.issueDate &&
+            !i.returnDate
+        );
+        if (target) target.returnDate = date;
+        save('lib_issues', allIssues);
+
+        let books = getBooks();
+        const book = books.find(b => b.id === issue.bookId);
+        if (book) book.isAvailable = true;
+        save('lib_books', books);
+
+        closeModal();
+        render.issues();
+        toast('Книга возвращена');
+    }
+    //  SEARCH
+
+    function doSearch() {
+        const query = document.getElementById('search-input').value.trim().toLowerCase();
+        const field = document.getElementById('search-field').value;
+        const books = getBooks();
+
+        if (!query) {
+            document.getElementById('search-results').innerHTML = '';
+            return;
+        }
+
+        const results = books.filter(b => {
+            const val = (field === 'title' ? b.title : b.author).toLowerCase();
+            return val.includes(query);
+        });
+
+        renderBooksTable(results, document.getElementById('search-results'));
+    }
+
+    //  RENDER FUNCTIONS
+    const render = {
+        books() {
+            renderBooksTable(getBooks(), document.getElementById('books-table'));
+        },
+
+        readers() {
+            const readers = getReaders();
+            const el = document.getElementById('readers-table');
+
+            if (readers.length === 0) {
+                el.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">[ ]</div>
+                        <div>Читатели не найдены</div>
+                    </div>`;
+                return;
+            }
+
+            el.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>ФИО</th><th>Телефон</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        ${readers.map(r => `
+                            <tr>
+                                <td>${r.id}</td>
+                                <td>${esc(r.name)}</td>
+                                <td>${esc(r.phone)}</td>
+                                <td><button class="btn btn-sm btn-danger" onclick="deleteReader(${r.id})">Удалить</button></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>`;
+        },
+
+        issues() {
+            const issues = getIssues();
+            const books = getBooks();
+            const readers = getReaders();
+            const el = document.getElementById('issues-table');
+
+            if (issues.length === 0) {
+                el.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">[ ]</div>
+                        <div>Журнал пуст</div>
+                    </div>`;
+                return;
+            }
+
+            el.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>Книга</th><th>Читатель</th><th>Выдана</th><th>Возврат</th><th>Статус</th></tr>
+                    </thead>
+                    <tbody>
+                        ${issues.map(i => {
+                            const b = books.find(b => b.id === i.bookId);
+                            const r = readers.find(r => r.id === i.readerId);
+                            const active = !i.returnDate;
+                            return `
+                                <tr>
+                                    <td>${b ? esc(b.title) : 'ID:' + i.bookId}</td>
+                                    <td>${r ? esc(r.name) : 'ID:' + i.readerId}</td>
+                                    <td>${i.issueDate}</td>
+                                    <td>${i.returnDate || '—'}</td>
+                                    <td><span class="badge ${active ? 'badge-active' : 'badge-closed'}">${active ? 'Активна' : 'Закрыта'}</span></td>
+                                </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>`;
+        },
+
+        search() {
+            doSearch();
+        },
+
+        stats() {
+            const books = getBooks();
+            const readers = getReaders();
+            const issues = getIssues();
+            const available = books.filter(b => b.isAvailable).length;
+            const issued = books.length - available;
+
+            const genreCounts = {};
+            GENRES.forEach(g => genreCounts[g] = 0);
+            books.forEach(b => {
+                if (genreCounts[b.genre] !== undefined) genreCounts[b.genre]++;
+            });
+
+            const el = document.getElementById('stats-content');
+            el.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value">${books.length}</div>
+                        <div class="label">Всего книг</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value">${available}</div>
+                        <div class="label">В наличии</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value">${issued}</div>
+                        <div class="label">Выдано</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value">${readers.length}</div>
+                        <div class="label">Читателей</div>
+                    </div>
+                </div>
+                <h3 style="font-size:14px; color:var(--accent); margin-bottom:12px;">Книги по жанрам</h3>
+                <ul class="genre-list">
+                    ${GENRES.filter(g => genreCounts[g] > 0).map(g => `
+                        <li><span>${g}</span><span class="count">${genreCounts[g]}</span></li>
+                    `).join('')}
+                    ${GENRES.every(g => genreCounts[g] === 0) ? '<li style="color:var(--text-dim)">Нет данных</li>' : ''}
+                </ul>`;
+        }
+    };
+
+    // XSS protection
+    function esc(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    // Initial render
+    render.books();
+    </script>
+</body>
+</html>
