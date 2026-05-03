@@ -24,8 +24,8 @@
 
 ```bash
 # 1. Клонировать репозиторий
-git clone https://github.com/getmananastyasia/kursovay.git
-cd kursovay
+git clone https://github.com/getmananastyasia/kursovaya-library-.git
+cd kursovaya-library-
 
 # 2. Открыть веб-интерфейс в браузере
 open web/index.html        # macOS
